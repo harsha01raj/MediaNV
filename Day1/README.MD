@@ -83,15 +83,17 @@ Modules are
 
 // What is the difference between call back and Promises?
 Call back functions are the function that pass is passed and an argument to the another function.and call inside the function and use to handle asycnronus task
-like: function(callback1){
-        callback1(()=>{
-            callback2(()=>{
-                callback3(()=>{
+like: 
 
-                })
+function(callback1){
+    callback1(()=>{
+        callback2(()=>{
+            callback3(()=>{
+
             })
         })
-    }
+    })
+}
 
 
 Promises is an object that represent a value that may be available in future,now or never.
@@ -118,6 +120,7 @@ like :- const fetchData=async function(){
 While you are dealing with asyncronus task there is chance that your promise will reject in that case we need to handle that rejection. SO in that case we use try and catch block if promise excute successfully and try block will execute other wise catch block excute.
 
 example:-
+
 const fetchData=async function(){
     try{
         let res=await fetch('URL');
