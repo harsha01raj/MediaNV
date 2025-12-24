@@ -22,20 +22,20 @@ Browser APIs:- UI & user interaction, DOM manipulation, Rendering Web Pages, Eve
 
 Understanding Runtime Environments & Event Handling
 
-1️⃣ What is a Runtime Environment?
+1.What is a Runtime Environment?
 
 A runtime environment is the platform where JavaScript code executes and provides APIs, libraries, and services required for execution.
 
 JavaScript does not run alone — it always needs a runtime.
 
-🌍 Types of JavaScript Runtime Environments
+ Types of JavaScript Runtime Environments
 
-🔹 Browser Runtime
+Browser Runtime
 Runs JavaScript inside a web browser
 Managed by Chrome, Firefox, Safari
 Provides Browser APIs
 
-🔹 Node.js Runtime
+Node.js Runtime
 Runs JavaScript on the server / local machine
 Built on V8 engine
 Provides Node.js APIs
