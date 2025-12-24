@@ -1,0 +1,40 @@
+//1. FS module.
+
+Fs is stand for file system module from this module we can perform task related to files.fs can do a lot of things with files.
+like:- 
+Create
+Read
+Update 
+Delete
+Work with folders
+Streams
+Watch file changes
+
+If you want to use fs module then first you need to import the fs module in your file.
+Syntax for import fs module is: 
+const fs=require('fs');
+
+FS module have a lot of methods and have 3 types.
+1. Synchronous Method (Blocking wait until work finish);
+2. Asynchronous Method (Non-Blocking);
+3. Promise-based (Modern & recommended)
+
+1.  How to read the files with fs module in node?
+(a)Asynchronous-fs.readFile()
+Syntax
+fs.readFile('filename','utf8',(err,data)=>{
+    if(err){
+        console.error(err);
+        return;
+    }
+    console.log(data);
+});
+
+This way will not block code.
+
+(b)Synchronous-fs.readFileSync()
+
+const data=fs.readFileSync('filename','utf8');
+console.log(data);
+
+This way will block code.
