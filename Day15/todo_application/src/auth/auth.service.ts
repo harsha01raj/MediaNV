@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable prettier/prettier */
 import { BadRequestException, Injectable, NotFoundException, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,11 +20,11 @@ export class AuthService {
 
         const user = await this.userRepo.findOne({
             where: { email },
-            select: ['id', 'name', 'email', 'password'], // include password for comparison
+            select: ['id', 'name', 'email', 'password','role'], // include password for comparison
         });
 
         if (!user) throw new NotFoundException("User is not registered in our database!! Please register first");
-        // console.log(user);
+        console.log(user);
         if (! await bcrypt.compare(password, user.password)) throw new BadRequestException("Invalid password");
         const payload = {
             sub: user.id,
@@ -34,6 +33,7 @@ export class AuthService {
         };
         const access_token = await this.jwtService.signAsync(payload);
         const { password: _, ...result } = user;
+        // console.log(access_token)
         return {
             Message: "User has successfully logged In",
             user: result,

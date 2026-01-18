@@ -22,10 +22,6 @@ export class UserService {
     const existingUser = await this.userRepo.findOne({ where: { email }, });
     if (existingUser) throw new ConflictException("User already register in our database");
     const saltRound = Number(this.config.get<number>('SALT_ROUND')) ?? 10;
-    const allowedRoles = [Role.USER];
-    const finalRole = allowedRoles.includes(role)
-    ? role
-    : Role.USER;
     const hashedPassword = await bcrypt.hash(plainPassword, saltRound);
     const newUser = this.userRepo.create({
       name,

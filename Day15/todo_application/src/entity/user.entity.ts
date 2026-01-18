@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable prettier/prettier */
 
 import { Role } from "src/auth/enums/role.enum";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Task } from "src/task/entities/task.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity("users_table")
 export class Users {
@@ -25,4 +24,7 @@ export class Users {
         default: Role.USER,
     })
     role: Role;
+
+    @OneToMany(() => Task, (task) => task.user)
+    tasks: Task[];
 }
