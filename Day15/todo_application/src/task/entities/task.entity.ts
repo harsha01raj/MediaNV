@@ -9,11 +9,8 @@ export class Task {
     @Column({ type: 'text' })
     task: string;
 
-    @Column({ type: 'text',nullable:false })
-    description: string;
-
     @Column({ default: false })
-    status: boolean;
+    isCompleted: boolean;
 
     @Column({name:'user_id'})
     userId: string;

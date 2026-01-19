@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { StringValue } from 'ms'
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth.startegy';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { JwtStrategy } from './auth.startegy';
     PassportModule.register({defaultStrategy:'jwt'}),
   ],
   providers: [AuthService,JwtStrategy],
-  controllers: [],
+  controllers: [AuthController],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule { }
