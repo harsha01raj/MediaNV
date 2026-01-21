@@ -6,6 +6,11 @@ import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { StudentModule } from './student/student.module';
+import { TeacherModule } from './teacher/teacher.module';
+import { ClassesModule } from './classes/classes.module';
+import { AttendanceModule } from './attendance/attendance.module';
+import { MarksModule } from './marks/marks.module';
 
 @Module({
   imports: [
@@ -24,7 +29,7 @@ import { AuthModule } from './auth/auth.module';
         synchronize: true
       })
     })
-    , UserModule, AuthModule],
+    , UserModule, AuthModule, StudentModule, TeacherModule, ClassesModule, AttendanceModule, MarksModule],
   controllers: [AppController],
   providers: [AppService],
 })

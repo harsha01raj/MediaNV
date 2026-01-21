@@ -4,15 +4,17 @@
 /* eslint-disable prettier/prettier */
 import { Exclude } from "class-transformer";
 import { Role } from "src/auth/enum/role.enum";
+import { Student } from "src/student/entities/student.entity";
+import { Teacher } from "src/teacher/entities/teacher.entity";
 
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
 export class User {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column()
+    @Column({ unique: true })
     username: string;
 
     @Column({ unique: true })
@@ -34,4 +36,10 @@ export class User {
     @Exclude()
     @Column()
     password: string;
+
+    @OneToOne(() => Student, student => student.user)
+    student: Student;
+
+    @OneToOne(() => Teacher, teacher => teacher.user)
+    teacher: Teacher;
 }
