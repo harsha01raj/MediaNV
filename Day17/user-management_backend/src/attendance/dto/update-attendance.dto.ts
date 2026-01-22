@@ -1,4 +1,5 @@
-import { PartialType } from '@nestjs/mapped-types';
+/* eslint-disable prettier/prettier */
+import { PartialType } from '@nestjs/swagger';
 import { CreateAttendanceDto } from './create-attendance.dto';
 
 export class UpdateAttendanceDto extends PartialType(CreateAttendanceDto) {}

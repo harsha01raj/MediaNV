@@ -11,7 +11,7 @@ export class Student {
   id: string;
 
   @Column({ unique: true })
-  roll_no: string;
+  roll_no: number;
 
   @OneToOne(() => User, user => user.student, { onDelete: 'CASCADE' })
   @JoinColumn()

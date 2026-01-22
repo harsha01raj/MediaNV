@@ -40,18 +40,47 @@ export class TeacherService {
   }
 
   async findOne(username: string) {
-    const teacher =await this.teacherRepo.findOne({
-      where:{username}
+    const teacher = await this.teacherRepo.findOne({
+      where: {
+        user: {
+          username,
+        },
+      },
+      relations: ['user'],
     });
-    
-    return `This action returns a  teacher`;
+
+    if (!teacher) throw new NotFoundException('Teacher not found with this username');
+    return teacher;
   }
 
-  update(id: number, updateTeacherDto: UpdateTeacherDto) {
-    return `This action updates a #${id} teacher`;
+  async update(username: string, updateTeacherDto: UpdateTeacherDto) {
+    const teacher = await this.teacherRepo.findOne({
+      where: {
+        user: {
+          username,
+        },
+      },
+      relations: ['user'],
+    });
+
+    if (!teacher) throw new NotFoundException('Teacher not found with this username');
+
+    Object.assign(teacher, updateTeacherDto);
+
+    return await this.teacherRepo.save(teacher);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} teacher`;
+  async remove(username: string) {
+    const teacher = await this.teacherRepo.findOne({
+      where: {
+        user: { username },
+      },
+      relations: ['user'],
+    });
+
+    if (!teacher) throw new NotFoundException("Teacher not found with this username");
+
+    await this.teacherRepo.remove(teacher);
+    return teacher;
   }
 }

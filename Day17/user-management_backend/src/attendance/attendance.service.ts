@@ -59,7 +59,7 @@ export class AttendanceService {
     return attendence;
   }
 
-  async findByRollNo(roll_no: string, date?: string) {
+  async findByRollNo(roll_no: number, date?: string) {
     if (!roll_no) {
       throw new BadRequestException('roll_no is required');
     }
@@ -84,7 +84,7 @@ export class AttendanceService {
     return attendance;
   }
 
-  async updateByRollNoOrDate(updateAttendanceDto: UpdateAttendanceDto, roll_no: string, date: string) {
+  async updateByRollNoOrDate(updateAttendanceDto: UpdateAttendanceDto, roll_no: number, date: string) {
     if (!roll_no && !date) throw new BadRequestException('Either roll_no or date must be provided for update');
 
     if (!roll_no || !date) {

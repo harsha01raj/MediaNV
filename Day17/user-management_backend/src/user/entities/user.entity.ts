@@ -20,7 +20,7 @@ export class User {
     @Column({ unique: true })
     email: string;
 
-    @Column({ default: 'inactive' })
+    @Column({ default: 'active' })
     status: string;
 
     @Column({ type: 'timestamp', nullable: true })

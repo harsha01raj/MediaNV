@@ -22,7 +22,14 @@ export class StudentService {
     const { roll_no, username, class_name, section } = createStudentDto;
 
     const existingStudent = await this.studentRepo.findOne({
-      where: { roll_no }
+      where: {
+        roll_no,
+        classRoom: {
+          class_name,
+          section
+        },
+      },
+      relations: ['classRoom'],
     });
 
     if (existingStudent) throw new ConflictException("Student already exist with this roll no in our da");
@@ -48,20 +55,23 @@ export class StudentService {
   }
 
   async findAll() {
-    const students = await this.studentRepo.find();
+    const students = await this.studentRepo.find({
+      relations: ['user', 'classRoom'],
+    });
     if (!students.length) throw new NotFoundException("Students not found student table is empty");
     return students;
   }
 
-  async findOne(roll_no: string) {
+  async findOne(roll_no: number) {
     const student = await this.studentRepo.findOne({
-      where: { roll_no }
+      where: { roll_no },
+      relations: ['user', 'classRoom'],
     })
     if (!student) throw new NotFoundException("Student not found with this roll_no");
     return student;
   }
 
-  async update(roll_no: string, updateStudentDto: UpdateStudentDto) {
+  async update(roll_no: number, updateStudentDto: UpdateStudentDto) {
     const existingStudent = await this.studentRepo.findOne({
       where: { roll_no }
     });
@@ -72,12 +82,16 @@ export class StudentService {
     return this.studentRepo.save(existingStudent);
   }
 
-  async remove(roll_no: string) {
+  async remove(roll_no: number) {
     const student = await this.studentRepo.findOne({
-      where: { roll_no }
+      where: { roll_no },
     });
-    if (!student) throw new NotFoundException("Studen t not found with the given roll no");
 
-    return await this.studentRepo.delete({ roll_no })
+    if (!student) {
+      throw new NotFoundException('Student not found with the given roll no');
+    }
+
+    return await this.studentRepo.remove(student);
+
   }
 }

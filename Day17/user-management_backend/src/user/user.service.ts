@@ -20,7 +20,7 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { username, email, status, password } = createUserDto;
     const existingUser = await this.userRepository.findOne({
-      where: { email },
+      where: [{ username }, { email }],
     })
     if (existingUser) throw new ConflictException("User already exist in our database");
     const saltRound = Number(this.config.get('SALT_ROUND') ?? 10);

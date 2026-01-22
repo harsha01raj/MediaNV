@@ -24,6 +24,20 @@ export class MarksService {
 
     if (!student) throw new NotFoundException("Student not found of this roll_no");
 
+    const existingMark = await this.markRepo.findOne({
+      where: {
+        subject,
+        student: { id: student.id },
+      },
+    });
+
+    if (existingMark) {
+      throw new BadRequestException(
+        `Marks already exist for subject ${subject} for this roll_no`,
+      );
+    }
+
+
     const newMark = this.markRepo.create({
       subject,
       marks,
@@ -33,12 +47,12 @@ export class MarksService {
   }
 
   async findAll() {
-    const marks = await this.markRepo.find();
+    const marks = await this.markRepo.find({ relations: ['student'] });
     if (!marks.length) throw new NotFoundException("Marks are not available to our database");
     return marks;
   }
 
-  async findOne(roll_no: string) {
+  async findOne(roll_no: number) {
     const mark = await this.studentRepo.findOne({
       where: { roll_no },
       relations: ['marks'],
@@ -49,7 +63,7 @@ export class MarksService {
     return mark;
   }
 
-  async update(roll_no: string, updateMarkDto: UpdateMarkDto) {
+  async update(roll_no: number, updateMarkDto: UpdateMarkDto) {
     const student = await this.studentRepo.findOne({
       where: { roll_no },
     });
@@ -68,7 +82,7 @@ export class MarksService {
     return await this.markRepo.save(mark);
   }
 
-  async remove(roll_no: string) {
+  async remove(roll_no: number) {
     const student = await this.studentRepo.findOne({
       where: { roll_no },
       relations: ['marks'],

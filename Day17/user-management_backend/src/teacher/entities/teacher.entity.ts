@@ -4,7 +4,7 @@ import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "ty
 
 @Entity('teacher')
 export class Teacher {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column()
