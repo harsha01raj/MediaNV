@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -16,7 +17,8 @@ export class RoleGuard implements CanActivate {
             [context.getHandler(), context.getClass()]
         );
         if (!RequiredRoles) return true;
-        const { user } = context.switchToHttp().getRequest();
-        return RequiredRoles.includes(user.role);
+        const request = context.switchToHttp().getRequest();
+        const user = request.user?.payload?.user;
+        return RequiredRoles.includes(user.role.toUpperCase() as Role);
     }
 }

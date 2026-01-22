@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable prettier/prettier */
-import { Controller, Post, Body, Res, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Res, Req, UnauthorizedException, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import express from 'express';
 import { ConfigService } from '@nestjs/config';
 import ms, { StringValue } from 'ms';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { JwtAuthGuard } from './guards/auth.guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -81,5 +84,29 @@ export class AuthController {
     response.clearCookie('refresh_token');
 
     return { message: 'Logged out successfully' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMe(@Req() req: Request) {
+    // JWT payload contains 'user'
+    // Example: req.user = { payload: { user: { ... } } }
+    const user = (req as any).user?.payload?.user;
+    if (!user) return null;
+    console.log("me",user);
+
+    // Return only necessary info (omit password)
+    if (!user) return null;
+
+    return {
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        status: user.status,
+        lastLogin: user.lastLogin,
+        role: user.role,
+      },
+    };
   }
 }

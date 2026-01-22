@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -29,6 +27,8 @@ export class UserService {
 
     const newUser = this.userRepository.create({ username, email, status, lastLogin: new Date(), password: hashedPassword });
     return await this.userRepository.save(newUser);
+    console.log(newUser);
+    return newUser;
 
   }
 
