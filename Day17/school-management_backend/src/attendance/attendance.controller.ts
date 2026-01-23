@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Patch, Body, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Query, ParseIntPipe, UseGuards, Delete, Param } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
@@ -80,5 +80,10 @@ export class AttendanceController {
       message: 'Attendance updated successfully',
       UpdateAttendance: updatedAttendance,
     };
+  }
+
+  @Delete(':id')
+  deleteAttendance(@Param('id') id: string) {
+    return this.attendanceService.deleteById(id);
   }
 }

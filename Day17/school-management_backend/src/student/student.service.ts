@@ -19,38 +19,64 @@ export class StudentService {
     private readonly classRepo: Repository<Class>,
   ) { }
   async create(createStudentDto: CreateStudentDto) {
-    const { roll_no, username, class_name, section } = createStudentDto;
-
+    const { roll_no, username, class_name, section } = createStudentDto;// 1️⃣ Check roll number in same class
     const existingStudent = await this.studentRepo.findOne({
       where: {
         roll_no,
         classRoom: {
           class_name,
-          section
+          section,
         },
       },
       relations: ['classRoom'],
     });
 
-    if (existingStudent) throw new ConflictException("Student already exist with this roll no in our da");
+    if (existingStudent) {
+      throw new ConflictException(
+        "Student already exists with this roll number in this class"
+      );
+    }
 
+    
     const user = await this.userRepo.findOne({
-      where: { username }
-    })
+      where: { username },
+    });
 
-    if (!user) throw new NotFoundException("The given username is not exist in our database");
+    if (!user) {
+      throw new NotFoundException(
+        "The given username does not exist in our database"
+      );
+    }
+
+    const studentWithUser = await this.studentRepo.findOne({
+      where: {
+        user: { id: user.id },
+      },
+      relations: ['user'],
+    });
+
+    if (studentWithUser) {
+      throw new ConflictException(
+        "This user is already registered as a student"
+      );
+    }
 
     const classes = await this.classRepo.findOne({
-      where: { class_name, section }
-    })
+      where: { class_name, section },
+    });
 
-    if (!classes) throw new NotFoundException("The given class name is not found in our database");
+    if (!classes) {
+      throw new NotFoundException(
+        "The given class name is not found in our database"
+      );
+    }
 
     const newStudent = this.studentRepo.create({
       roll_no,
       user,
-      classRoom: classes
-    })
+      classRoom: classes,
+    });
+
     return await this.studentRepo.save(newStudent);
   }
 

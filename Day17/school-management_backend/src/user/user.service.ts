@@ -7,12 +7,19 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { Teacher } from 'src/teacher/entities/teacher.entity';
+import { Student } from 'src/student/entities/student.entity';
+import { Role } from 'src/auth/enum/role.enum';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Teacher)
+    private readonly teacherRepository: Repository<Teacher>,
+    @InjectRepository(Student)
+    private readonly studentRepository: Repository<Student>,
     private config: ConfigService,
   ) { }
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -50,11 +57,45 @@ export class UserService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({
-      where: { id }
-    })
-    if (!user) throw new NotFoundException("User not found");
-    const updatedUser = Object.assign(user, updateUserDto);
-    return await this.userRepository.save(updatedUser);
+      where: { id },
+      relations: ['student', 'teacher'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const oldRole = user.role;
+
+    // update user fields
+    Object.assign(user, updateUserDto);
+    const savedUser = await this.userRepository.save(user);
+
+    // 🔁 ROLE CHANGE SIDE EFFECTS
+    if (oldRole !== savedUser.role) {
+
+      // USER → STUDENT
+      if (savedUser.role === Role.STUDENT && !user.student) {
+        const student = this.studentRepository.create({
+          roll_no: 0,           // default
+          user: savedUser,      // ✅ relation
+        });
+
+        await this.studentRepository.save(student);
+      }
+
+      // USER → TEACHER
+      if (savedUser.role === Role.TEACHER && !user.teacher) {
+        const teacher = this.teacherRepository.create({
+          subject: 'Not Assigned',
+          user: savedUser,      // ✅ relation
+        });
+
+        await this.teacherRepository.save(teacher);
+      }
+    }
+
+    return savedUser;
   }
 
   async remove(id: string) {

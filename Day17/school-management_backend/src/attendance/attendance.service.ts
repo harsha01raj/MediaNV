@@ -54,7 +54,9 @@ export class AttendanceService {
   }
 
   async findAll() {
-    const attendence = await this.attendanceRepo.find();
+    const attendence = await this.attendanceRepo.find({
+      relations: ['student']
+    });
     if (!attendence.length) throw new NotFoundException("Attendance not found");
     return attendence;
   }
@@ -102,5 +104,13 @@ export class AttendanceService {
     const updateRecords = Object.assign(attendance, updateAttendanceDto);
 
     return await this.attendanceRepo.save(updateRecords);
+  }
+
+  async deleteById(id: string) {
+    const result = await this.attendanceRepo.delete({ id });
+    if (result.affected === 0) {
+      throw new NotFoundException('Attendance not found');
+    }
+    return { message: 'Attendance deleted' };
   }
 }

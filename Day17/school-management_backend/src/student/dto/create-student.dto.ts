@@ -27,7 +27,7 @@ export class CreateStudentDto {
 
   @ApiProperty({
     description: "Section of the class",
-    example: "A",
+    example: "A"
   })
   @IsString()
   section: string;

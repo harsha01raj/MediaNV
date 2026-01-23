@@ -5,7 +5,7 @@ import { Student } from "src/student/entities/student.entity";
 
 @Entity('attendance')
 export class Attendance {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ type: Date })
