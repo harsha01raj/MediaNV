@@ -35,7 +35,9 @@ export class ClassesService {
   }
 
   async findAll() {
-    const classes = await this.classRepo.find();
+    const classes = await this.classRepo.find({
+      //relations:[]
+    });
     if (!classes) throw new NotFoundException("Classes not found in our data base");
     return classes;
   }

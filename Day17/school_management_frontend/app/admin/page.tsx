@@ -11,20 +11,17 @@ import {
     CalendarCheck,
     User,
     LogOut,
+    Mail,
+    Lock,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../utils/apiAddress";
 import { useRouter } from "next/navigation";
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
     Tooltip,
     ResponsiveContainer,
     PieChart,
     Pie,
-    Cell,
 } from "recharts";
 
 type AdminTab =
@@ -41,6 +38,19 @@ export default function AdminDashboard() {
     const router = useRouter();
 
     const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
+    const [isCreateStudentOpen, setIsCreateStudentOpen] = useState(false);
+    const [newUsername, setNewUsername] = useState("");
+    const [newRollNo, setNewRollNo] = useState<number>(0);
+    const [newClassId, setNewClassId] = useState("");
+
+    const [isCreateTeacherOpen, setIsCreateTeacherOpen] = useState(false);
+    const [isEditTeacherOpen, setIsEditTeacherOpen] = useState(false);
+    const [editingTeacher, setEditingTeacher] = useState<any>(null);
+
+    const [newTeacherUsername, setNewTeacherUsername] = useState("");
+    const [newSubject, setNewSubject] = useState("");
+
+    const [editSubject, setEditSubject] = useState("");
 
     const [user, setUser] = useState<any>();
     const [users, setUsers] = useState<any[]>([]);
@@ -51,6 +61,13 @@ export default function AdminDashboard() {
     const [attendance, setAttendance] = useState<any[]>([]);
     const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
     const [editingStudent, setEditingStudent] = useState<any>(null);
+    const [isCreateClassOpen, setIsCreateClassOpen] = useState(false);
+    const [isEditClassOpen, setIsEditClassOpen] = useState(false);
+
+    const [newClassName, setNewClassName] = useState("");
+    const [newSection, setNewSection] = useState("");
+
+    const [editClass, setEditClass] = useState<any>(null);
 
     const [editRollNo, setEditRollNo] = useState<number>(0);
     const [editClassId, setEditClassId] = useState<string>("");
@@ -83,14 +100,14 @@ export default function AdminDashboard() {
             //console.log("Users", usersRes.data.Users);
             setStudents(studentsRes.data.Students || []);
             //console.log("Student", studentsRes.data);
-            setTeachers(teachersRes.data.teachers || []);
-            //console.log("Teacher", teachersRes.data);
+            setTeachers(teachersRes.data.Teachers || []);
+            // console.log("Teacher", teachersRes.data);
             setClasses(classesRes.data.class || []);
-            //console.log("Classes", classesRes.data);
+            // console.log("Classes", classesRes.data);
             setMarks(marksRes.data.Marks || []);
-            //console.log("Marks", marksRes.data);
+            // console.log("Marks", marksRes.data);
             setAttendance(attendanceRes.data.fetchedAttendance || []);
-            //console.log("Attendance", attendanceRes.data);
+            console.log("Attendance", attendanceRes.data);
         } catch (err) {
             console.log(err);
             toast.error("err.message");
@@ -140,6 +157,9 @@ export default function AdminDashboard() {
     if (!user) return (
         <h1>Loading....</h1>
     )
+
+
+    // console.log(teachers);
     // console.log(user.username);
     return (
         //<h1>hello</h1>
@@ -289,7 +309,7 @@ export default function AdminDashboard() {
 
                             {/* CREATE STUDENT */}
                             <button
-                                onClick={() => toast("Open create student modal")}
+                                onClick={() => setIsCreateStudentOpen(true)}
                                 className="bg-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-700"
                             >
                                 + Add Student
@@ -349,7 +369,7 @@ export default function AdminDashboard() {
                                                 <button
                                                     onClick={async () => {
                                                         if (!confirm("Delete this student?")) return;
-                                                        await api.delete(`/student/${s.id}`);
+                                                        await api.delete(`/student/roll/${s.roll_no}`);
                                                         toast.success("Student deleted");
                                                         fetchAllData();
                                                     }}
@@ -374,71 +394,635 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
+                {isCreateStudentOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                        <div className="bg-slate-900 w-full max-w-md rounded-xl p-6 border border-white/10">
+                            <h3 className="text-xl font-bold mb-4">Add Student</h3>
 
+                            {/* USERNAME */}
+                            <div className="mb-3">
+                                <label className="text-sm text-slate-400">Username</label>
+                                <select
+                                    value={newUsername}
+                                    onChange={(e) => setNewUsername(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                >
+                                    <option value="">Select User</option>
+                                    {users.map((u) => (
+                                        <option key={u.id} value={u.username}>
+                                            {u.username}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
+                            {/* ROLL NO */}
+                            <div className="mb-3">
+                                <label className="text-sm text-slate-400">Roll No</label>
+                                <input
+                                    type="number"
+                                    value={newRollNo}
+                                    onChange={(e) => setNewRollNo(Number(e.target.value))}
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                />
+                            </div>
 
-                {
-                    activeTab === "teachers"
-                    && (
-                        <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
-                            <h2 className="text-xl font-bold capitalize">
-                                Manage {activeTab}
-                            </h2>
-                            <p className="text-slate-400 mt-2">
-                                CRUD tables go here (same pattern as Teacher dashboard)
-                            </p>
+                            {/* CLASS */}
+                            <div className="mb-4">
+                                <label className="text-sm text-slate-400">Class</label>
+                                <select
+                                    value={newClassId}
+                                    onChange={(e) => setNewClassId(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                >
+                                    <option value="">Select Class</option>
+                                    {classes.map((cls) => (
+                                        <option key={cls.id} value={`${cls.class_name}|${cls.section}`}>
+                                            {cls.class_name} - {cls.section}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* ACTIONS */}
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setIsCreateStudentOpen(false)}
+                                    className="px-4 py-2 bg-slate-700 rounded hover:bg-slate-600"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const [class_name, section] = newClassId.split("|");
+
+                                            await api.post("/student", {
+                                                username: newUsername,
+                                                roll_no: newRollNo,
+                                                class_name,
+                                                section,
+                                            });
+
+                                            toast.success("Student created");
+                                            setIsCreateStudentOpen(false);
+                                            fetchAllData();
+
+                                            // reset
+                                            setNewUsername("");
+                                            setNewRollNo(0);
+                                            setNewClassId("");
+                                        } catch (err: any) {
+                                            toast.error(err?.response?.data?.message || "Failed to create student");
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-purple-600 rounded hover:bg-purple-700 font-semibold"
+                                >
+                                    Create
+                                </button>
+                            </div>
                         </div>
-                    )}
+                    </div>
+                )}
 
 
+                {activeTab === "teachers" && (
+                    <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold">Manage Teachers</h2>
 
-
-                {
-                    activeTab === "classes"
-                    && (
-                        <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
-                            <h2 className="text-xl font-bold capitalize">
-                                Manage {activeTab}
-                            </h2>
-                            <p className="text-slate-400 mt-2">
-                                CRUD tables go here (same pattern as Teacher dashboard)
-                            </p>
+                            <button
+                                onClick={() => setIsCreateTeacherOpen(true)}
+                                className="px-4 py-2 bg-purple-600 rounded hover:bg-purple-700 font-semibold"
+                            >
+                                + Add Teacher
+                            </button>
                         </div>
-                    )}
 
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="text-slate-400 border-b border-white/10">
+                                        <th className="text-left py-2">Username</th>
+                                        <th className="text-left py-2">Subject</th>
+                                        <th className="text-right py-2">Actions</th>
+                                    </tr>
+                                </thead>
 
-                {
-                    activeTab === "marks"
-                    && (
-                        <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
-                            <h2 className="text-xl font-bold capitalize">
-                                Manage {activeTab}
-                            </h2>
-                            <p className="text-slate-400 mt-2">
-                                CRUD tables go here (same pattern as Teacher dashboard)
-                            </p>
+                                <tbody>
+                                    {teachers.map((t) => (
+                                        <tr
+                                            key={t.id}
+                                            className="border-b border-white/5 hover:bg-slate-700/30"
+                                        >
+                                            <td className="py-2">{t.user?.username || t.userId?.username || t.name}</td>
+                                            <td className="py-2">{t.subject}</td>
+
+                                            <td className="py-2 text-right space-x-2">
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingTeacher(t);
+                                                        setEditSubject(t.subject);
+                                                        setIsEditTeacherOpen(true);
+                                                    }}
+                                                    className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-sm"
+                                                >
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    onClick={async () => {
+                                                        if (!confirm("Delete this teacher?")) return;
+                                                        await api.delete(`/teacher/${t.user.username}`);
+                                                        toast.success("Teacher deleted");
+                                                        fetchAllData();
+                                                    }}
+                                                    className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-sm"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+
+                                    {!teachers.length && (
+                                        <tr>
+                                            <td colSpan={3} className="py-6 text-center text-slate-400">
+                                                No teachers found
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                {
-                    activeTab === "attendance"
-                    && (
-                        <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
-                            <h2 className="text-xl font-bold capitalize">
-                                Manage {activeTab}
-                            </h2>
-                            <p className="text-slate-400 mt-2">
-                                CRUD tables go here (same pattern as Teacher dashboard)
-                            </p>
+                {isEditTeacherOpen && editingTeacher && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                        <div className="bg-slate-900 w-full max-w-md rounded-xl p-6 border border-white/10">
+                            <h3 className="text-xl font-bold mb-4">Edit Teacher</h3>
+
+                            <div className="mb-4">
+                                <label className="text-sm text-slate-400">Subject</label>
+                                <input
+                                    value={editSubject}
+                                    onChange={(e) => setEditSubject(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setIsEditTeacherOpen(false)}
+                                    className="px-4 py-2 bg-slate-700 rounded hover:bg-slate-600"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    onClick={async () => {
+                                        await api.patch(`/teacher/${editingTeacher.user.username}`, {
+                                            subject: editSubject,
+                                        });
+
+                                        toast.success("Teacher updated");
+                                        setIsEditTeacherOpen(false);
+                                        fetchAllData();
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 font-semibold"
+                                >
+                                    Update
+                                </button>
+                            </div>
                         </div>
-                    )}
+                    </div>
+                )}
+
+                {isCreateTeacherOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                        <div className="bg-slate-900 w-full max-w-md rounded-xl p-6 border border-white/10">
+                            <h3 className="text-xl font-bold mb-4">Add Teacher</h3>
+
+                            {/* USERNAME */}
+                            <div className="mb-3">
+                                <label className="text-sm text-slate-400">Username</label>
+                                <select
+                                    value={newTeacherUsername}
+                                    onChange={(e) => setNewTeacherUsername(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                >
+                                    <option value="">Select User</option>
+                                    {users
+                                        .filter((u) => u.role === "TEACHER")
+                                        .map((u) => (
+                                            <option key={u.id} value={u.username}>
+                                                {u.username}
+                                            </option>
+                                        ))}
+                                </select>
+                            </div>
+
+                            {/* SUBJECT */}
+                            <div className="mb-4">
+                                <label className="text-sm text-slate-400">Subject</label>
+                                <input
+                                    value={newSubject}
+                                    onChange={(e) => setNewSubject(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                    placeholder="e.g. Mathematics"
+                                />
+                            </div>
+
+                            {/* ACTIONS */}
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setIsCreateTeacherOpen(false)}
+                                    className="px-4 py-2 bg-slate-700 rounded hover:bg-slate-600"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            await api.post("/teacher", {
+                                                username: newTeacherUsername,
+                                                subject: newSubject,
+                                            });
+
+                                            toast.success("Teacher created");
+                                            setIsCreateTeacherOpen(false);
+                                            fetchAllData();
+
+                                            // reset
+                                            setNewTeacherUsername("");
+                                            setNewSubject("");
+                                        } catch (err: any) {
+                                            toast.error(
+                                                err?.response?.data?.message || "Failed to create teacher"
+                                            );
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-purple-600 rounded hover:bg-purple-700 font-semibold"
+                                >
+                                    Create
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
+
+
+                {activeTab === "classes" && (
+                    <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold">Manage Classes</h2>
+
+                            <button
+                                onClick={() => setIsCreateClassOpen(true)}
+                                className="px-4 py-2 bg-purple-600 rounded hover:bg-purple-700 font-semibold"
+                            >
+                                + Add Class
+                            </button>
+                        </div>
+
+                        {/* TABLE */}
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left">
+                                <thead className="text-slate-400 border-b border-white/10">
+                                    <tr>
+                                        <th className="py-2">Class Name</th>
+                                        <th className="py-2">Section</th>
+                                        <th className="py-2 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {classes.map((cls) => (
+                                        <tr
+                                            key={cls.id}
+                                            className="border-b border-white/5 hover:bg-slate-700/30"
+                                        >
+                                            <td className="py-2">{cls.class_name}</td>
+                                            <td className="py-2">{cls.section}</td>
+
+                                            <td className="py-2 text-right space-x-2">
+                                                <button
+                                                    onClick={() => {
+                                                        setEditClass(cls);
+                                                        setIsEditClassOpen(true);
+                                                    }}
+                                                    className="px-3 py-1 rounded bg-yellow-600 hover:bg-yellow-700 text-sm"
+                                                >
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    onClick={async () => {
+                                                        if (!confirm("Delete this class?")) return;
+
+                                                        await api.delete(`/classes/${cls.class_name}`);
+                                                        toast.success("Class deleted");
+                                                        fetchAllData();
+                                                    }}
+                                                    className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-sm"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+
+                                    {classes.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="text-center py-6 text-slate-400">
+                                                No classes found
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {isCreateClassOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                        <div className="bg-slate-900 w-full max-w-md rounded-xl p-6 border border-white/10">
+                            <h3 className="text-xl font-bold mb-4">Add Class</h3>
+
+                            {/* CLASS NAME */}
+                            <div className="mb-3">
+                                <label className="text-sm text-slate-400">Class Name</label>
+                                <input
+                                    value={newClassName}
+                                    onChange={(e) => setNewClassName(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                    placeholder="e.g. class10"
+                                />
+                            </div>
+
+                            {/* SECTION */}
+                            <div className="mb-4">
+                                <label className="text-sm text-slate-400">Section</label>
+                                <input
+                                    value={newSection}
+                                    onChange={(e) => setNewSection(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                    placeholder="e.g. A"
+                                />
+                            </div>
+
+                            {/* ACTIONS */}
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setIsCreateClassOpen(false)}
+                                    className="px-4 py-2 bg-slate-700 rounded hover:bg-slate-600"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            await api.post("/classes", {
+                                                class_name: newClassName,
+                                                section: newSection,
+                                            });
+
+                                            toast.success("Class created");
+                                            setIsCreateClassOpen(false);
+                                            fetchAllData();
+
+                                            setNewClassName("");
+                                            setNewSection("");
+                                        } catch (err: any) {
+                                            toast.error(
+                                                err?.response?.data?.message || "Failed to create class"
+                                            );
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-purple-600 rounded hover:bg-purple-700 font-semibold"
+                                >
+                                    Create
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {isEditClassOpen && editClass && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                        <div className="bg-slate-900 w-full max-w-md rounded-xl p-6 border border-white/10">
+                            <h3 className="text-xl font-bold mb-4">Edit Class</h3>
+
+                            {/* CLASS NAME */}
+                            <div className="mb-3">
+                                <label className="text-sm text-slate-400">Class Name</label>
+                                <input
+                                    value={editClass.class_name}
+                                    onChange={(e) =>
+                                        setEditClass({ ...editClass, class_name: e.target.value })
+                                    }
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                />
+                            </div>
+
+                            {/* SECTION */}
+                            <div className="mb-4">
+                                <label className="text-sm text-slate-400">Section</label>
+                                <input
+                                    value={editClass.section}
+                                    onChange={(e) =>
+                                        setEditClass({ ...editClass, section: e.target.value })
+                                    }
+                                    className="w-full mt-1 px-3 py-2 bg-slate-800 rounded text-white"
+                                />
+                            </div>
+
+                            {/* ACTIONS */}
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => {
+                                        setIsEditClassOpen(false);
+                                        setEditClass(null);
+                                    }}
+                                    className="px-4 py-2 bg-slate-700 rounded hover:bg-slate-600"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            await api.patch(`/classes/${editClass.class_name}`, {
+                                                class_name: editClass.class_name,
+                                                section: editClass.section,
+                                            });
+
+                                            toast.success("Class updated");
+                                            setIsEditClassOpen(false);
+                                            setEditClass(null);
+                                            fetchAllData();
+                                        } catch (err: any) {
+                                            toast.error(
+                                                err?.response?.data?.message || "Failed to update class"
+                                            );
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-purple-600 rounded hover:bg-purple-700 font-semibold"
+                                >
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === "marks" && (
+                    <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
+                        <h2 className="text-xl font-bold capitalize mb-4">
+                            Manage {activeTab}
+                        </h2>
+
+                        <div className="overflow-x-auto bg-slate-900/40 rounded-xl border border-white/10">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-slate-900/60">
+                                    <tr>
+                                        <th className="py-2 px-4">Student</th>
+                                        <th className="py-2 px-4">Class</th>
+                                        <th className="py-2 px-4">Marks</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {marks.length > 0 ? (
+                                        marks.map((m) => (
+                                            <tr
+                                                key={m.id}
+                                                className="border-b border-white/10 hover:bg-slate-700/30"
+                                            >
+                                                <td className="py-2 px-4 font-semibold">
+                                                    {m.student?.user?.username || m.studentId || "Unknown"}
+                                                </td>
+                                                <td className="py-2 px-4">
+                                                    {m.student?.classRoom
+                                                        ? `${m.student.classRoom.class_name} - ${m.student.classRoom.section}`
+                                                        : "Not Assigned"}
+                                                </td>
+                                                <td className="py-2 px-4">{m.marks}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={3} className="py-6 text-center text-slate-400">
+                                                No marks found
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === "attendance" && (
+                    <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
+                        <h2 className="text-xl font-bold mb-4">Attendance Records</h2>
+
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead className="text-slate-400 border-b border-white/10">
+                                    <tr>
+                                        <th className="py-2 px-3">Roll No</th>
+                                        <th className="py-2 px-3">Date</th>
+                                        <th className="py-2 px-3">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {attendance.map((a) => (
+                                        <tr key={a.id} className="border-b border-white/10 hover:bg-slate-700/30">
+                                            <td className="py-2 px-3">{a.student?.roll_no || "Unknown"}</td>
+                                            <td className="py-2 px-3">{new Date(a.attendance_date).toLocaleDateString()}</td>
+                                            <td className="py-2 px-3">{a.status}</td>
+                                        </tr>
+                                    ))}
+
+                                    {attendance.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="py-6 text-center text-slate-400">
+                                                No attendance records found
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
 
                 {/* PROFILE */}
-                {activeTab === "profile" && (
-                    <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
-                        <h2 className="text-xl font-bold mb-4">Admin Profile</h2>
-                        <p>Email: {user.email}</p>
-                        <p>Role: {user.role}</p>
+                {activeTab === "profile" && user && (
+                    <div className="p-10">
+                        {/* Profile Card */}
+                        <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 
+      p-8 rounded-3xl border border-white/10 shadow-xl shadow-purple-500/20">
+
+                            {/* Glow Effect */}
+                            <div className="absolute inset-0 bg-purple-600/10 blur-3xl" />
+
+                            {/* Content */}
+                            <div className="relative z-10 flex flex-col gap-6">
+
+                                {/* Header */}
+                                <div className="flex items-center gap-5">
+                                    <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 to-pink-600 
+            flex items-center justify-center text-3xl font-bold shadow-lg">
+                                        {user.username[0]?.toUpperCase()}
+                                    </div>
+
+                                    <div>
+                                        <h2 className="text-2xl font-bold capitalize">{user.username}</h2>
+                                        <p className="text-sm text-slate-400">{user.email}</p>
+                                    </div>
+                                </div>
+
+                                {/* Divider */}
+                                <div className="h-px bg-white/10" />
+
+                                {/* Info Rows */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                                    {/* Email */}
+                                    <div className="flex items-center gap-4 bg-slate-800/60 p-4 rounded-xl border border-white/10">
+                                        <Mail className="text-purple-400" size={20} />
+                                        <div>
+                                            <p className="text-xs text-slate-400">Email</p>
+                                            <p className="font-medium">{user.email}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Password */}
+                                    <div className="flex items-center gap-4 bg-slate-800/60 p-4 rounded-xl border border-white/10">
+                                        <Lock className="text-red-400" size={20} />
+                                        <div>
+                                            <p className="text-xs text-slate-400">Password</p>
+                                            <p className="font-medium tracking-widest">••••••••</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                {/* Footer Note */}
+                                <p className="text-xs text-slate-400 text-center mt-4">
+                                    Profile details are protected and managed securely.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -497,7 +1081,7 @@ export default function AdminDashboard() {
                                 <button
                                     onClick={async () => {
                                         try {
-                                            await api.patch(`/student/${editingStudent.id}`, {
+                                            await api.patch(`/student/id/${editingStudent.id}`, {
                                                 roll_no: editRollNo,
                                                 classId: editClassId || null,
                                             });

@@ -34,7 +34,9 @@ export class TeacherService {
   }
 
   async findAll() {
-    const teachers = await this.teacherRepo.find();
+    const teachers = await this.teacherRepo.find({
+      relations: ['user'],
+    });
     if (!teachers.length) throw new NotFoundException('teachers not found table is empty');
     return teachers;
   }

@@ -65,6 +65,20 @@ export class StudentController {
     };
   }
 
+  @UseGuards(JwtAuthGuard,RoleGuard)
+  @Roles(Role.ADMIN,Role.TEACHER)
+  @Patch("id/:id")
+  @ApiOperation({ summary: 'Update a student by id' })
+  @ApiParam({ name: 'id', type: Number, description: 'Id of the student', example: 1 })
+  @ApiBody({ type: UpdateStudentDto })
+  async updateById(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
+    const student = await this.studentService.updateByid(id, updateStudentDto);
+    return {
+      message: 'Student successfully updated',
+      UpdatedStudent: student,
+    };
+  }
+
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.ADMIN)
   @Delete('roll/:roll_no')

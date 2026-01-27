@@ -13,7 +13,7 @@ export class Mark {
     @Column()
     marks: number;
 
-    @ManyToOne(()=>Student,student=>student.marks)
+    @ManyToOne(()=>Student,student=>student.marks,{onDelete:'CASCADE'})
     @JoinColumn()
     student:Student;
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable prettier/prettier */
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
@@ -37,7 +38,7 @@ export class StudentService {
       );
     }
 
-    
+
     const user = await this.userRepo.findOne({
       where: { username },
     });
@@ -108,13 +109,42 @@ export class StudentService {
     return this.studentRepo.save(existingStudent);
   }
 
+  async updateByid(id: string, dto: UpdateStudentDto) {
+    const student = await this.studentRepo.findOne({
+      where: { id },
+      relations: ['classRoom'],
+    });
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    if (dto.roll_no !== undefined) {
+      student.roll_no = dto.roll_no;
+    }
+
+    if (dto.classId) {
+      const classRoom = await this.classRepo.findOne({
+        where: { id: dto.classId },
+      });
+
+      if (!classRoom) {
+        throw new NotFoundException('Class not found');
+      }
+
+      student.classRoom = classRoom;
+    }
+
+    return this.studentRepo.save(student);
+  }
+
   async remove(roll_no: number) {
     const student = await this.studentRepo.findOne({
       where: { roll_no },
     });
 
     if (!student) {
-      throw new NotFoundException('Student not found with the given roll no');
+      throw new NotFoundException('Student not found with this id');
     }
 
     return await this.studentRepo.remove(student);

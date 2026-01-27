@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { Lock, Mail, LogOut, User } from "lucide-react";
 import api from "../utils/apiAddress";
 import toast from "react-hot-toast";

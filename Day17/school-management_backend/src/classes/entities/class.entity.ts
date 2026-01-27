@@ -14,6 +14,6 @@ export class Class {
     @Column()
     section: string;
 
-    @OneToMany(() => Student, student => student.classRoom)
+    @OneToMany(() => Student, student => student.classRoom,{onDelete:'CASCADE'})
     students: Student[];
 }
